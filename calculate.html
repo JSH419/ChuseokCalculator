@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>세뱃돈 계산기</title>
+    <style>
+        body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #F5DEB3; 
+    }
+
+    .calculator {
+        background-color: #8B4513; 
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); 
+        width: 40px; 
+    }
+			
+    table {
+        border-collapse: separate; 
+        border-spacing: 5px; 
+        border-radius: 10px;
+        width: 40%;
+    }
+
+    td {
+        padding: 10px;
+        text-align: center;
+        font-size: 20px;
+        color: #F5DEB3; 
+        background-color: #8B4513; 
+        border-radius: 5px; 
+    }
+
+    input[type="text"] {
+        text-align: right;
+        border: none;
+        background-color: #D2B48C; 
+        color: #8B4513; 
+        border-radius: 5px; 
+        width: 90%;
+        padding: 10px;
+        font-size: 20px;
+        margin: 5px 0;
+    }
+
+    input:focus {
+        outline: none;
+    }
+    </style>
+</head>
+<body>
+      <table border="2">
+        <tr>
+            <td colspan="4">
+                <input type="text" id="display" placeholder="0(KRW)">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <input type="text" id="result">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" onclick="reset1()">AC</td>
+            <td onclick="reset2()">C</td>
+            <td onclick="add('/')">/</td>
+        </tr>
+        <tr>
+            <td onclick="add(7)">7</td>
+            <td onclick="add(8)">8</td>
+            <td onclick="add(9)">9</td>
+            <td onclick="add('*')">*</td>
+        </tr>
+        <tr>
+            <td onclick="add(4)">4</td>
+            <td onclick="add(5)">5</td>
+            <td onclick="add(6)">6</td>
+            <td onclick="add('-')">-</td>
+        </tr>
+        <tr>
+            <td onclick="add(1)">1</td>
+            <td onclick="add(2)">2</td>
+            <td onclick="add(3)">3</td>
+            <td onclick="add('+')">+</td>
+        </tr>
+        <tr>
+            <td colspan="2" onclick="add(0)">0</td>
+            <td onclick="add('.')">.</td>
+            <td onclick="calculate()">=</td>
+        </tr>
+    </table>
+</body>
+<script>
+	//display 화면에 숫자, 연산자 추가 
+	var numberClicked = false;
+	var display = document.getElementById('display');
+	function add(char) {
+		// 입력창이 비어있거나 입력 받은 첫번째 값이 연산자라면 작동되지 않음.
+		if (display.value === "" && isNaN(char)) {
+	        return;
+	    }
+	    if(numberClicked == false) { // 연산자가 입력되어 있는데
+            if(isNaN(char) == true) { //입력된 값이 숫자가 아니라면(연산자라면) 현재 연산자를 지우고 입력된 연산자를 추가한다.
+            	var currentValue = display.value;
+                var newValue = currentValue.substring(0, currentValue.length - 1) + char;
+                display.value = newValue;
+                
+            } else { // 숫자라면
+                document.getElementById('display').value += char; // 연산자 뒤에 추가한다.
+            }
+        } else { // 숫자를 입력했다면 
+            document.getElementById('display').value += char; // 연산자 뒤에 값을 추가한다.
+        }
+	    // 다음 입력을 위한 numberClicked 설정
+        if(isNaN(char) == true) { //"만약 숫자가 아닌게 참이라면" = "연산자를 눌렀다면"
+            numberClicked = false; // numberClicked를 false로 설정한다.
+        } else {
+            numberClicked = true; // numberClicked를 true로 설정한다.
+        }
+	}
+	
+	// 입력된 값 계산
+	function calculate() {
+	    var display = document.getElementById('display');
+	    try {
+	        var input = display.value.trim();
+	        // 입력된 값 체크
+	        if (!input) {
+	            throw new Error("식을 입력하세요.");
+	        }
+			// +,-,*,/ 를 적은 후 숫자를 입력하지 않는 경우 체크 
+	        if (input.endsWith('+') || input.endsWith('-') || input.endsWith('*') || input.endsWith('/')) {
+	            throw new Error("식을 완전히 입력하세요.");
+	        }
+	        // eval 함수 사용하여 계산 					
+	        var result = eval(input);
+	        
+	        result = result.toString(); // 결과 값을 문자열로 변환 
+			
+	        if (result.length >= 10) { //결과가 10자리 이상이면 Infinity 출력
+	            result = "Infinity";
+	        } else {
+	            result = parseInt(result); // 아니면 결과 값을 정수로 변환함
+	        }
+	        
+	        if (isNaN(result)) { // 0나누기 0과 같이 값이 정의되지 않는 경우 "숫자 아님" 출력 
+				  alert("숫자 아님");
+			}
+	        
+	        if (result >= 0) {
+	        	result = result.toLocaleString('ko-KR');	// 천단위 콤마 찍는 함수 사용
+	            document.getElementById('result').value = result;
+	        } else {
+	            document.getElementById('result').value = "결과는 0 이상이어야 함.";
+	        }
+	        
+	    } catch (error) {
+	        alert(error.message);
+	    }
+	}
+	
+	//AC 버튼
+	function reset1() {
+	    document.getElementById('display').value = "";
+	    document.getElementById('result').value = "";
+	}
+	//C 버튼
+	function reset2() {
+		var display = document.getElementById('display');
+	    var currentValue = display.value;
+	    
+	    // 현재 입력 값에서 마지막 문자를 제거합니다.
+	    var newValue = currentValue.slice(0, -1);
+	    
+	    // 수정된 값을 다시 표시합니다.
+	    display.value = newValue;
+	}
+</script>
+</html>
